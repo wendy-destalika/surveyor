@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Kalkulator Surveyor</title>
+<style>
+  :root{
+    --ink:#1b2a23;
+    --paper:#f4f2ec;
+    --line:#cbd0c4;
+    --brass:#9a7b3f;
+    --brass-dark:#7a5f2c;
+    --pine:#2f4f3e;
+    --pine-light:#4a7060;
+    --alert:#9c3b2e;
+    --mono: 'Courier New', monospace;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    font-family:'Georgia','Times New Roman',serif;
+    color:var(--ink);
+    -webkit-tap-highlight-color:transparent;
+  }
+  header{
+    background:var(--pine);
+    color:var(--paper);
+    padding:18px 16px 14px;
+    border-bottom:4px solid var(--brass);
+  }
+  header h1{
+    margin:0;
+    font-size:1.3rem;
+    letter-spacing:0.5px;
+    font-weight:700;
+  }
+  header p{
+    margin:4px 0 0;
+    font-size:0.78rem;
+    color:#d8e3da;
+    font-family:var(--mono);
+    letter-spacing:0.5px;
+  }
+  nav{
+    display:flex;
+    overflow-x:auto;
+    background:#e8e4d8;
+    border-bottom:1px solid var(--line);
+    position:sticky;
+    top:0;
+    z-index:10;
+  }
+  nav button{
+    flex:1 0 auto;
+    padding:12px 10px;
+    font-family:var(--mono);
+    font-size:0.7rem;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+    background:none;
+    border:none;
+    color:#5a5f52;
+    border-bottom:3px solid transparent;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  nav button.active{
+    color:var(--pine);
+    border-bottom:3px solid var(--brass);
+    font-weight:bold;
+    background:var(--paper);
+  }
+  main{
+    padding:16px;
+    max-width:560px;
+    margin:0 auto;
+    padding-bottom:60px;
+  }
+  .panel{display:none;}
+  .panel.active{display:block;animation:fade .25s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+  .panel h2{
+    font-size:1.05rem;
+    color:var(--pine);
+    border-bottom:2px solid var(--brass);
+    padding-bottom:6px;
+    margin:0 0 14px;
+  }
+  .field-group{
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:12px;
+    margin-bottom:12px;
+  }
+  .field-group legend, .group-label{
+    font-family:var(--mono);
+    font-size:0.7rem;
+    text-transform:uppercase;
+    color:var(--brass-dark);
+    letter-spacing:0.5px;
+    margin-bottom:8px;
+    display:block;
+  }
+  .row{display:flex;gap:8px;margin-bottom:8px;}
+  .row label{
+    flex:1;
+    font-size:0.85rem;
+  }
+  label.solo{display:block;font-size:0.85rem;margin-bottom:8px;}
+  input{
+    width:100%;
+    padding:9px 8px;
+    border:1px solid var(--line);
+    border-radius:3px;
+    font-family:var(--mono);
+    font-size:0.95rem;
+    margin-top:3px;
+    background:#fbfaf6;
+    color:var(--ink);
+  }
+  input:focus{outline:2px solid var(--brass);border-color:var(--brass);}
+  .pt-row{
+    display:flex;
+    gap:6px;
+    align-items:center;
+    margin-bottom:6px;
+  }
+  .pt-row span{
+    font-family:var(--mono);
+    font-size:0.75rem;
+    color:var(--pine);
+    width:18px;
+  }
+  .pt-row input{flex:1;}
+  .pt-row button.remove{
+    flex:0 0 auto;
+    width:30px;
+    padding:8px 0;
+    background:#eee;
+    color:var(--alert);
+    border:1px solid var(--line);
+    font-weight:bold;
+  }
+  .btn{
+    width:100%;
+    padding:13px;
+    background:var(--pine);
+    color:#fff;
+    border:none;
+    border-radius:3px;
+    font-size:0.95rem;
+    font-weight:bold;
+    letter-spacing:0.4px;
+    cursor:pointer;
+    margin-top:4px;
+  }
+  .btn:active{background:var(--pine-light);}
+  .btn.secondary{
+    background:none;
+    color:var(--brass-dark);
+    border:1px dashed var(--brass);
+    font-weight:normal;
+  }
+  .result{
+    margin-top:14px;
+    background:#fff;
+    border-left:4px solid var(--brass);
+    padding:12px 14px;
+    border-radius:0 4px 4px 0;
+    display:none;
+  }
+  .result.show{display:block;}
+  .result .line{
+    display:flex;
+    justify-content:space-between;
+    font-family:var(--mono);
+    font-size:0.9rem;
+    padding:4px 0;
+    border-bottom:1px dotted var(--line);
+  }
+  .result .line:last-child{border-bottom:none;}
+  .result .line b{color:var(--pine);}
+  .note{
+    font-size:0.72rem;
+    color:#7a7d72;
+    margin-top:10px;
+    font-style:italic;
+  }
+  .error{
+    color:var(--alert);
+    font-family:var(--mono);
+    font-size:0.82rem;
+    margin-top:10px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Kalkulator Surveyor</h1>
+  <p>BEARING · KOORDINAT · LUAS · DMS</p>
+</header>
+
+<nav id="tabs">
+  <button class="active" data-panel="bearing">Bearing</button>
+  <button data-panel="polar">Polar→XY</button>
+  <button data-panel="area">Luas</button>
+  <button data-panel="dms">DMS</button>
+</nav>
+
+<main>
+
+  <!-- BEARING & DISTANCE -->
+  <section class="panel active" id="bearing">
+    <h2>Azimuth &amp; Jarak dari 2 Titik</h2>
+    <div class="field-group">
+      <span class="group-label">Titik Awal (A)</span>
+      <div class="row">
+        <label>X (Timur)<input type="number" id="b_xa" placeholder="0.000" step="any"></label>
+        <label>Y (Utara)<input type="number" id="b_ya" placeholder="0.000" step="any"></label>
+      </div>
+    </div>
+    <div class="field-group">
+      <span class="group-label">Titik Tujuan (B)</span>
+      <div class="row">
+        <label>X (Timur)<input type="number" id="b_xb" placeholder="0.000" step="any"></label>
+        <label>Y (Utara)<input type="number" id="b_yb" placeholder="0.000" step="any"></label>
+      </div>
+    </div>
+    <button class="btn" onclick="hitungBearing()">Hitung Azimuth &amp; Jarak</button>
+    <div class="result" id="r_bearing"></div>
+    <p class="note">Konvensi surveyor: Utara = azimuth 0°, searah jarum jam. ΔX = Xb−Xa, ΔY = Yb−Ya.</p>
+  </section>
+
+  <!-- POLAR TO XY -->
+  <section class="panel" id="polar">
+    <h2>Titik Baru dari Azimuth &amp; Jarak</h2>
+    <div class="field-group">
+      <span class="group-label">Titik Awal</span>
+      <div class="row">
+        <label>X (Timur)<input type="number" id="p_x0" placeholder="0.000" step="any"></label>
+        <label>Y (Utara)<input type="number" id="p_y0" placeholder="0.000" step="any"></label>
+      </div>
+    </div>
+    <div class="field-group">
+      <span class="group-label">Data Ukur</span>
+      <div class="row">
+        <label>Azimuth (°)<input type="number" id="p_az" placeholder="0–360" step="any"></label>
+        <label>Jarak<input type="number" id="p_d" placeholder="0.000" step="any"></label>
+      </div>
+    </div>
+    <button class="btn" onclick="hitungPolar()">Hitung Koordinat Baru</button>
+    <div class="result" id="r_polar"></div>
+    <p class="note">Cocok untuk pengukuran poligon/stake-out: dari titik berdiri + azimuth + jarak ukur.</p>
+  </section>
+
+  <!-- AREA -->
+  <section class="panel" id="area">
+    <h2>Luas Area Poligon</h2>
+    <div class="field-group">
+      <span class="group-label">Daftar Titik (min. 3, urut keliling)</span>
+      <div id="pt-list"></div>
+      <button class="btn secondary" onclick="tambahTitik()">+ Tambah Titik</button>
+    </div>
+    <button class="btn" onclick="hitungLuas()">Hitung Luas</button>
+    <div class="result" id="r_area"></div>
+    <p class="note">Metode shoelace (Gauss). Urutkan titik searah keliling poligon (CW atau CCW, konsisten).</p>
+  </section>
+
+  <!-- DMS -->
+  <section class="panel" id="dms">
+    <h2>Konversi Derajat ↔ DMS</h2>
+    <div class="field-group">
+      <span class="group-label">Derajat Desimal → DMS</span>
+      <label class="solo">Derajat desimal<input type="number" id="d_dec" placeholder="contoh: 123.456" step="any"></label>
+      <button class="btn" onclick="decToDms()">Konversi ke DMS</button>
+      <div class="result" id="r_dec2dms"></div>
+    </div>
+    <div class="field-group">
+      <span class="group-label">DMS → Derajat Desimal</span>
+      <div class="row">
+        <label>Derajat<input type="number" id="d_d" placeholder="123" step="any"></label>
+        <label>Menit<input type="number" id="d_m" placeholder="27" step="any"></label>
+        <label>Detik<input type="number" id="d_s" placeholder="21.6" step="any"></label>
+      </div>
+      <button class="btn" onclick="dmsToDec()">Konversi ke Desimal</button>
+      <div class="result" id="r_dms2dec"></div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+// ---------- NAV ----------
+document.getElementById('tabs').addEventListener('click', e=>{
+  const btn = e.target.closest('button');
+  if(!btn) return;
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(btn.dataset.panel).classList.add('active');
+});
+
+// ---------- HELPERS ----------
+function toDeg(r){ return r * 180 / Math.PI; }
+function toRad(d){ return d * Math.PI / 180; }
+function fmt(n, dec=4){ return Number(n).toFixed(dec); }
+function showResult(id, html){
+  const el = document.getElementById(id);
+  el.innerHTML = html;
+  el.classList.add('show');
+}
+function showError(id, msg){
+  const el = document.getElementById(id);
+  el.innerHTML = '<div class="error">⚠ '+msg+'</div>';
+  el.classList.add('show');
+}
+
+// ---------- BEARING & DISTANCE ----------
+function hitungBearing(){
+  const xa = parseFloat(document.getElementById('b_xa').value);
+  const ya = parseFloat(document.getElementById('b_ya').value);
+  const xb = parseFloat(document.getElementById('b_xb').value);
+  const yb = parseFloat(document.getElementById('b_yb').value);
+  if([xa,ya,xb,yb].some(isNaN)){ showError('r_bearing','Lengkapi semua koordinat titik A dan B.'); return; }
+
+  const dx = xb - xa;
+  const dy = yb - ya;
+  const dist = Math.sqrt(dx*dx + dy*dy);
+  let az = toDeg(Math.atan2(dx, dy));
+  if(az < 0) az += 360;
+
+  const d = Math.floor(az);
+  const mFull = (az - d) * 60;
+  const m = Math.floor(mFull);
+  const s = (mFull - m) * 60;
+
+  showResult('r_bearing', `
+    <div class="line"><span>ΔX</span><b>${fmt(dx)}</b></div>
+    <div class="line"><span>ΔY</span><b>${fmt(dy)}</b></div>
+    <div class="line"><span>Jarak</span><b>${fmt(dist)}</b></div>
+    <div class="line"><span>Azimuth (°)</span><b>${fmt(az,4)}°</b></div>
+    <div class="line"><span>Azimuth (DMS)</span><b>${d}° ${m}' ${fmt(s,1)}"</b></div>
+  `);
+}
+
+// ---------- POLAR TO XY ----------
+function hitungPolar(){
+  const x0 = parseFloat(document.getElementById('p_x0').value);
+  const y0 = parseFloat(document.getElementById('p_y0').value);
+  const az = parseFloat(document.getElementById('p_az').value);
+  const d  = parseFloat(document.getElementById('p_d').value);
+  if([x0,y0,az,d].some(isNaN)){ showError('r_polar','Lengkapi titik awal, azimuth, dan jarak.'); return; }
+
+  const rad = toRad(az);
+  const dx = d * Math.sin(rad);
+  const dy = d * Math.cos(rad);
+  const x1 = x0 + dx;
+  const y1 = y0 + dy;
+
+  showResult('r_polar', `
+    <div class="line"><span>X baru</span><b>${fmt(x1)}</b></div>
+    <div class="line"><span>Y baru</span><b>${fmt(y1)}</b></div>
+    <div class="line"><span>ΔX / ΔY</span><b>${fmt(dx)} / ${fmt(dy)}</b></div>
+  `);
+}
+
+// ---------- AREA ----------
+let ptCount = 0;
+function tambahTitik(){
+  ptCount++;
+  const wrap = document.createElement('div');
+  wrap.className = 'pt-row';
+  wrap.id = 'pt-row-'+ptCount;
+  wrap.innerHTML = `
+    <span>${ptCount}</span>
+    <input type="number" step="any" placeholder="X" class="pt-x">
+    <input type="number" step="any" placeholder="Y" class="pt-y">
+    <button class="remove" onclick="document.getElementById('pt-row-${ptCount}').remove()">✕</button>
+  `;
+  document.getElementById('pt-list').appendChild(wrap);
+}
+for(let i=0;i<3;i++) tambahTitik();
+
+function hitungLuas(){
+  const rows = document.querySelectorAll('#pt-list .pt-row');
+  const pts = [];
+  for(const row of rows){
+    const x = parseFloat(row.querySelector('.pt-x').value);
+    const y = parseFloat(row.querySelector('.pt-y').value);
+    if(!isNaN(x) && !isNaN(y)) pts.push([x,y]);
+  }
+  if(pts.length < 3){ showError('r_area','Masukkan minimal 3 titik dengan koordinat valid.'); return; }
+
+  let sum = 0;
+  for(let i=0;i<pts.length;i++){
+    const [x1,y1] = pts[i];
+    const [x2,y2] = pts[(i+1)%pts.length];
+    sum += (x1*y2 - x2*y1);
+  }
+  const area = Math.abs(sum) / 2;
+  const hektar = area / 10000;
+
+  showResult('r_area', `
+    <div class="line"><span>Jumlah titik</span><b>${pts.length}</b></div>
+    <div class="line"><span>Luas (m²)</span><b>${fmt(area,2)}</b></div>
+    <div class="line"><span>Luas (Ha)</span><b>${fmt(hektar,4)}</b></div>
+  `);
+}
+
+// ---------- DMS ----------
+function decToDms(){
+  const dec = parseFloat(document.getElementById('d_dec').value);
+  if(isNaN(dec)){ showError('r_dec2dms','Masukkan derajat desimal.'); return; }
+  const sign = dec < 0 ? -1 : 1;
+  const abs = Math.abs(dec);
+  const d = Math.floor(abs);
+  const mFull = (abs - d) * 60;
+  const m = Math.floor(mFull);
+  const s = (mFull - m) * 60;
+  showResult('r_dec2dms', `
+    <div class="line"><span>Hasil DMS</span><b>${sign<0?'-':''}${d}° ${m}' ${fmt(s,2)}"</b></div>
+  `);
+}
+
+function dmsToDec(){
+  const d = parseFloat(document.getElementById('d_d').value);
+  const m = parseFloat(document.getElementById('d_m').value);
+  const s = parseFloat(document.getElementById('d_s').value);
+  if([d,m,s].some(isNaN)){ showError('r_dms2dec','Lengkapi derajat, menit, dan detik.'); return; }
+  const sign = d < 0 ? -1 : 1;
+  const dec = sign * (Math.abs(d) + m/60 + s/3600);
+  showResult('r_dms2dec', `
+    <div class="line"><span>Hasil Desimal</span><b>${fmt(dec,6)}°</b></div>
+  `);
+}
+</script>
+</body>
+</html>
